@@ -17,17 +17,23 @@ if (cluster.isMaster) {
         let webPaths;
         console.log(`Master ${process.pid} is running`);
 
-        cluster.on('message', async (worker, processId, handle) => {
+        cluster.on('message', async (worker, msg, handle) => {
             //если воркер отчитался что обработка закончилась - проверяем есть ли ещё страницы для обработки, если есть - закидываем на обработку следующий таск
-            if (webPaths && webPaths.length) {
-                worker.send({type: "processPage", "url" : webPaths.shift()});
-            } else {
-                worker.send({ type : "killWorker"});
-                setTimeout(async () => {
-                    console.log(`Killing ${processId} Worker`);
-                    worker.kill();
-                }, 5000);
-
+            if (msg.type === 'pageProcessed') {
+                if (webPaths && webPaths.length) {
+                    worker.send({type: "processPage", "url": webPaths.shift()});
+                } else {
+                    worker.send({type: "killWorker"});
+                    setTimeout(async () => {
+                        console.log(`Killing ${msg.processId} Worker`);
+                        worker.kill();
+                    }, 5000);
+                }
+            } else if (msg.type === 'addWebPaths') {
+                if (msg.hasOwnProperty('webPaths') && msg.webPaths && msg.webPaths.length) {
+                    webPaths = [...webPaths, ...msg.webPaths];
+                    console.log(webPaths);
+                }
             }
         });
 
@@ -78,9 +84,14 @@ if (cluster.isMaster) {
                         filmActors: await WebPageProcessor.getActors(film)
                     });
                 }
-                console.log(filmsData);
+                //console.log(filmsData);
+                let nextPageUrl = await WebPageProcessor.getNextPageUrl(driver);
+                console.log(nextPageUrl);
+                if (nextPageUrl) {
+                    process.send({type : "addWebPaths", webPaths : [nextPageUrl]});
+                }
             });
-            process.send(process.pid);
+            process.send({ type: "pageProcessed", "processId" : process.pid});
         } else if (msg.type === 'killWorker') {
                 await Kernel.stopDriver()
                 delete Kernels[process.pid];

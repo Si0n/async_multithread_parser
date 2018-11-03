@@ -1,4 +1,6 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
+const sha256 = require('sha256');
+
 class WebPageProcessor {
 
     async getFilmName(filmElement) {
@@ -25,6 +27,12 @@ class WebPageProcessor {
         } catch (e) {
             return '...';
         }
+    }
+
+    async getNextPageUrl(driver) {
+        return await driver.findElement(By.xpath('//div[@class="nav"][1]/*[@class="desc"]/a[text()="Next »"]'))
+            .getAttribute("href")
+            .catch (e => console.error(e));
     }
 
     async getRuntime(filmElement) {
