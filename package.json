@@ -25,7 +25,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "start:dev": "nodemon",
-    "start:debug": "nodemon --config nodemon-debug.json"
+    "start:debug": "nodemon --config nodemon-debug.json",
+    "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "author": "",
   "license": "ISC"

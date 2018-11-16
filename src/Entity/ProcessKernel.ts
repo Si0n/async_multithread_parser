@@ -1,15 +1,11 @@
 export class ProcessKernel {
-    constructor(private readonly worker, private readonly workerType)
+    constructor(private readonly processId)
     {
     }
 
-    public getWorker()
-    {
-        return this.worker;
-    }
 
-    public getWorkerType()
+    public getProcessId()
     {
-        return this.workerType;
+        return this.processId;
     }
 }
