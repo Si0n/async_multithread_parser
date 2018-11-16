@@ -1,9 +1,8 @@
 const cluster = require('cluster');
-const http = require('http');
-const KernelClass = require('./src/Kernel')
+const KernelClass = require('./Entity/Kernel')
 const numCPUs = require('os').cpus().length;
 const {By, Key, until} = require('selenium-webdriver');
-const {WebPageProcessor} = require('./src/WebPageProcessor');
+const {WebPageProcessor} = require('./Service/WebPageProcessor');
 const Kernels = {};
 
 if (cluster.isMaster) {

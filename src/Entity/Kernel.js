@@ -1,4 +1,4 @@
-const {WebHelper} = require("./WebHelper");
+const {WebHelper} = require("./Helper/WebHelper");
 const {By, Key, until} = require('selenium-webdriver');
 
 class Kernel {
