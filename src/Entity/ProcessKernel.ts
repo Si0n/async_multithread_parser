@@ -20,8 +20,7 @@ export class ProcessKernel {
                 return this.webdriver.processPage(message.body.url, (driver) => {
                     return this.webparser.parsePage(driver);
                 })
-                    .then(parsedData => new Message(Message.TYPE_URL_PARSED, parsedData, WorkerWrapper.STATE_FREE))
-                    .then((message) => (this.webdriver.stopDriver() && message));
+                    .then(parsedData => new Message(Message.TYPE_URL_PARSED, parsedData, WorkerWrapper.STATE_FREE));
                 break;
         }
 
