@@ -1,6 +1,7 @@
 import {MessageInterface} from '../Interface/MessageInterface';
 
 export class Message implements MessageInterface {
+    static TYPE_ERROR: string = 'error';
     static TYPE_PARSE_URL: string = 'parseUrl';
     static TYPE_BLANK_RESPONSE: string = 'blank';
     static TYPE_ADD_URLS: string = 'addUrls';

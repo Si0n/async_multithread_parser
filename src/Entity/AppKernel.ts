@@ -25,8 +25,8 @@ export class AppKernel {
             }
             cluster.on("message", (worker, message: Message, handle) => {
                 let workerWrapper: WorkerWrapper = this.workers[worker.process.pid];
-                console.log(workerWrapper.worker.process.pid);
                 workerWrapper.receive(message);
+                console.log(workerWrapper.getReceivedMessage());
                 if (workerWrapper.getReceivedMessage().type === Message.TYPE_URL_PARSED) {
                     if (workerWrapper.getReceivedMessage().body.urls && Object.keys(workerWrapper.getReceivedMessage().body.urls).length) {
                         this.addUrls(workerWrapper.getReceivedMessage().body.urls);
@@ -57,9 +57,14 @@ export class AppKernel {
 
         } else if (cluster.isWorker) {
             let WorkerKernel = new ProcessKernel(process.pid);
-            process.on("message", (message: Message) => {
-                let response = WorkerKernel.processMessage(message);
-                process.send(response);
+            process.on("message", async (message: Message) => {
+                try {
+                    let response = await WorkerKernel.processMessage(message);
+                    process.send(response);
+                } catch (err) {
+                    console.log(err);
+                    process.send(new Message(Message.TYPE_ERROR, {error : err}, WorkerWrapper.STATE_FREE));
+                }
             });
         }
     }
@@ -72,26 +77,22 @@ export class AppKernel {
 
     private runKernelLoop()
     {
-        this.loop = setInterval(this.checkWorkersForWork, 5000);
+        this.loop = setInterval(() => {
+            for (let i in this.workers) {
+                let worker: WorkerWrapper = this.workers[i];
+                if (worker.getState() === WorkerWrapper.STATE_FREE) {
+                    let url = this.getUrl();
+                    if (url) {
+                        worker.send(new Message(Message.TYPE_PARSE_URL, {url: url}, WorkerWrapper.STATE_BUSY));
+                    }
+                }
+            }
+        }, 5000);
     }
 
     private stopKernelLoop()
     {
         clearInterval(this.loop);
-    }
-
-
-    private checkWorkersForWork()
-    {
-        for (let i in this.workers) {
-            let worker: WorkerWrapper = this.workers[i];
-            if (worker.getState() === WorkerWrapper.STATE_FREE) {
-                let url = this.getUrl();
-                if (url) {
-                    worker.send(new Message(Message.TYPE_PARSE_URL, {url: url}, WorkerWrapper.STATE_BUSY));
-                }
-            }
-        }
     }
 
     private getUrl()

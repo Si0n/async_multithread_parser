@@ -17,10 +17,11 @@ export class ProcessKernel {
     {
         switch (message.type) {
             case Message.TYPE_PARSE_URL :
-                let parsedData = await this.webdriver.processPage(message.body.url, (driver) => {
+                return this.webdriver.processPage(message.body.url, (driver) => {
                     return this.webparser.parsePage(driver);
-                });
-                return new Message(Message.TYPE_URL_PARSED, parsedData, WorkerWrapper.STATE_FREE);
+                })
+                    .then(parsedData => new Message(Message.TYPE_URL_PARSED, parsedData, WorkerWrapper.STATE_FREE))
+                    .then((message) => (this.webdriver.stopDriver() && message));
                 break;
         }
 

@@ -25,7 +25,6 @@ export class SeleniumDriver {
     async stopDriver()
     {
         let promise = this.driver.quit();
-        this.driver = null;
         this.setDriverBuilt(false);
         return await promise;
     }
