@@ -1,14 +1,16 @@
-export class Message {
-  constructor(
-    private readonly messageType: string,
-    private readonly messageBody: object
-  ) {}
+import {MessageInterface} from '../Interface/MessageInterface';
 
-  public getMessageType(): string {
-    return this.messageType;
-  }
+export class Message implements MessageInterface {
+    static TYPE_PARSE_URL: string = 'parseUrl';
+    static TYPE_BLANK_RESPONSE: string = 'blank';
+    static TYPE_ADD_URLS: string = 'addUrls';
+    static TYPE_URL_PARSED: string = 'urlParsed';
 
-  public getMessageBody(): object {
-    return this.messageBody;
-  }
+    constructor(
+        public readonly type: string,
+        public readonly body,
+        public readonly workerState: string
+    )
+    {
+    }
 }
